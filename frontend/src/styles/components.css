@@ -1,0 +1,8 @@
+.panel, .stat-card { transition: border-color var(--st-motion-normal) ease, box-shadow var(--st-motion-normal) ease, transform var(--st-motion-normal) var(--st-ease); }
+.panel:focus-within { border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+.btn { min-height: 38px; }
+.btn:focus-visible { box-shadow: var(--st-focus-ring); }
+.badge { line-height: 1.2; }
+.empty-state, .empty-inline { overflow-wrap: anywhere; }
+table th { white-space: nowrap; }
+table td { vertical-align: middle; }

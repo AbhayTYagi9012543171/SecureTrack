@@ -1,0 +1,166 @@
+/* SecureTrack Design Overhaul — v5 visual layer. Loaded last to unify existing pages. */
+:root {
+  --st-ink: #17243b;
+  --st-muted: #718096;
+  --st-border: #e5eaf2;
+  --st-surface: #ffffff;
+  --st-canvas: #f5f7fb;
+  --st-primary: #315cf5;
+  --st-primary-dark: #2145d8;
+  --st-cyan: #13b8a6;
+  --st-danger: #e5484d;
+  --st-success: #16876b;
+  --st-warm-shadow: 0 18px 50px rgba(24, 43, 82, .075);
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  color: var(--st-ink);
+  background: var(--st-canvas);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+::selection { color: #fff; background: #315cf5; }
+:focus-visible { outline: 3px solid rgba(49, 92, 245, .45); outline-offset: 3px; }
+
+/* Page canvas and hierarchy */
+main, .main-content, .page-content, .dashboard-content, .content-area, .app-content {
+  min-width: 0;
+}
+main h1, .page-title, .page-header h1, .dashboard-title {
+  color: #15233a;
+  font-weight: 760;
+  letter-spacing: -.035em;
+  line-height: 1.16;
+}
+main h2, main h3, .section-title { letter-spacing: -.022em; color: #1c2b43; }
+p, .muted, .text-muted, .page-description { color: var(--st-muted); }
+
+/* Panels, metrics and content surfaces */
+.card, .stat-card, .metric-card, .panel, .content-card, .dashboard-card,
+.settings-card, .form-card, .table-card, .chart-card, .section-card,
+[class*="StatCard"], [class*="statCard"] {
+  border: 1px solid rgba(222, 229, 240, .92);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 5px 18px rgba(29, 48, 82, .035);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.stat-card:hover, .metric-card:hover, .dashboard-card:hover {
+  border-color: #cbd7f5;
+  box-shadow: var(--st-warm-shadow);
+  transform: translateY(-2px);
+}
+.card, .panel, .content-card, .settings-card, .form-card, .table-card { padding: clamp(16px, 2vw, 26px); }
+
+/* Navigation */
+.sidebar, .app-sidebar, aside[class*="sidebar"] {
+  border-right: 1px solid rgba(222, 229, 240, .82);
+  background: #fff;
+}
+.sidebar a, .app-sidebar a, nav a { transition: background .18s ease, color .18s ease, transform .18s ease; }
+.sidebar a:hover, .app-sidebar a:hover { transform: translateX(2px); }
+.topbar, .app-topbar, header[class*="topbar"] {
+  background: rgba(255,255,255,.9);
+  border-bottom: 1px solid rgba(222,229,240,.85);
+  backdrop-filter: blur(16px);
+}
+
+/* Buttons */
+button, .btn, [role="button"], input[type="submit"] {
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease;
+}
+button:not(:disabled):active, .btn:not(:disabled):active { transform: translateY(1px) scale(.99); }
+button:disabled, .btn:disabled { cursor: not-allowed; opacity: .58; }
+.btn-primary, button.primary, .button-primary, [data-variant="primary"] {
+  border-color: transparent;
+  background: linear-gradient(135deg, #3e68ff, #3154e8);
+  color: #fff;
+  box-shadow: 0 7px 16px rgba(49,92,245,.2);
+}
+.btn-primary:hover, button.primary:hover, .button-primary:hover { box-shadow: 0 10px 22px rgba(49,92,245,.27); }
+
+/* Form controls */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select, textarea {
+  max-width: 100%;
+  border: 1px solid #dce3ee;
+  border-radius: 11px;
+  background: #fff;
+  color: #1d2b43;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
+  border-color: #7290ff;
+  box-shadow: 0 0 0 4px rgba(49,92,245,.10);
+  outline: none;
+}
+input::placeholder, textarea::placeholder { color: #9aa6b8; }
+label { color: #34435a; font-weight: 600; }
+
+/* Data tables */
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
+thead th {
+  color: #718096;
+  background: #f8faff;
+  font-size: .74rem;
+  font-weight: 750;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--st-border);
+}
+th, td { padding: 14px 16px; text-align: left; }
+tbody td { border-bottom: 1px solid #edf0f6; color: #35445b; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: #f8faff; }
+
+/* Public landing pages */
+.hero, .landing-hero, .hero-section, [class*="landingHero"] { isolation: isolate; }
+.hero h1, .landing-hero h1, .hero-section h1 {
+  max-width: 900px;
+  font-size: clamp(2.5rem, 6vw, 5.1rem);
+  line-height: 1.02;
+  letter-spacing: -.065em;
+}
+.hero p, .landing-hero p, .hero-section p { max-width: 700px; font-size: clamp(1rem, 1.5vw, 1.18rem); line-height: 1.8; }
+.feature-card, .pricing-card, .testimonial-card {
+  border: 1px solid rgba(220,228,241,.95);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 35px rgba(29,48,82,.045);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.feature-card:hover, .pricing-card:hover, .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--st-warm-shadow); }
+
+/* Authentication screens */
+.auth-card, .login-card, .register-card, [class*="auth-card"] {
+  border: 1px solid rgba(226,232,242,.95);
+  border-radius: 24px;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 24px 70px rgba(24,43,82,.12);
+}
+
+/* Status and feedback */
+.badge, .status-badge, .severity-badge { border-radius: 999px; font-weight: 700; letter-spacing: .01em; }
+.alert, .notice, .inline-notice { border-radius: 13px; }
+hr { border: 0; border-top: 1px solid var(--st-border); }
+
+/* Motion, only when allowed */
+@media (prefers-reduced-motion: no-preference) {
+  .card, .panel, .content-card, .stat-card, .metric-card, .feature-card, .pricing-card { animation: st-enter .36s both; }
+  @keyframes st-enter { from { opacity: .0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+@media (max-width: 768px) {
+  .card, .panel, .content-card, .settings-card, .form-card, .table-card { border-radius: 15px; padding: 16px; }
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+  th, td { padding: 12px; }
+  .hero h1, .landing-hero h1, .hero-section h1 { font-size: clamp(2.35rem, 11vw, 3.8rem); }
+}

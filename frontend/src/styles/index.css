@@ -1,0 +1,453 @@
+/* SecureTrack Premium UI System — v2
+   Import order: legacy foundation -> page styles -> premium design tokens/overrides.
+   Existing class names are preserved for compatibility.
+*/
+@import './legacy.css';
+@import './tokens.css';
+@import './reset.css';
+@import './global.css';
+@import './themes.css';
+@import './layout.css';
+@import './sidebar.css';
+@import './navbar.css';
+@import './topbar.css';
+@import './mainlayout.css';
+@import './components.css';
+@import './dashboard.css';
+@import './websites.css';
+@import './scans.css';
+@import './findings.css';
+@import './remediation.css';
+@import './reports.css';
+@import './activity-logs.css';
+@import './notifications.css';
+@import './settings.css';
+@import './auth.css';
+@import './public-pages.css';
+@import './animations.css';
+@import './responsive.css';
+@import './utilities.css';
+@import './components/buttons.css';
+@import './components/forms.css';
+@import './components/tables.css';
+@import './components/feedback.css';
+@import './accessibility.css';
+@import './premium-polish.css';
+@import './landing-upgrade.css';
+@import './design-overhaul.css';
+@import './ai-copilot.css';
+
+/* --------------------------------------------------------------------------
+   SecureTrack Premium Contrast + Surface System
+   Loaded last on purpose to resolve conflicting legacy/theme declarations.
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+  --st-bg: #f3f6fb;
+  --st-bg-elevated: #ffffff;
+  --st-surface: #ffffff;
+  --st-surface-soft: #f8faff;
+  --st-surface-hover: #f1f5ff;
+  --st-ink: #101828;
+  --st-ink-strong: #0b1220;
+  --st-text: #243247;
+  --st-muted: #526176;
+  --st-placeholder: #65758b;
+  --st-border: #d8e0eb;
+  --st-border-strong: #b9c6d8;
+  --st-primary: #2457d6;
+  --st-primary-hover: #1946b8;
+  --st-primary-soft: #eaf0ff;
+  --st-success: #087443;
+  --st-warning: #92400e;
+  --st-danger: #b42318;
+  --st-info: #175cd3;
+  --st-shadow-sm: 0 1px 2px rgb(16 24 40 / 5%);
+  --st-shadow-md: 0 8px 24px rgb(16 24 40 / 7%);
+  --st-shadow-lg: 0 18px 48px rgb(16 24 40 / 10%);
+  --st-focus-ring: 0 0 0 4px rgb(36 87 214 / 17%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  min-width: 320px;
+  background: var(--st-bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--st-bg);
+  color: var(--st-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+
+#root { min-height: 100vh; }
+::selection { color: #fff; background: #2457d6; }
+:focus-visible { outline: 3px solid rgb(36 87 214 / 70%); outline-offset: 3px; }
+
+/* Typography: strong hierarchy without pale gray body copy */
+h1, h2, h3, h4, h5, h6,
+.page-heading h1, .page-title, .page-header h1, .dashboard-title,
+.section-title, .panel-heading, .card-title, .modal-title {
+  color: var(--st-ink-strong);
+  letter-spacing: -0.025em;
+}
+h1, .page-heading h1, .page-title, .page-header h1, .dashboard-title {
+  font-weight: 760;
+  line-height: 1.18;
+}
+p, li, dd, dt, figcaption, .page-description, .description,
+.subtitle, .subheading, .helper-text, .help-text, .form-text,
+.text-muted, .muted, .text-secondary, .metadata, .meta {
+  color: var(--st-muted);
+}
+strong, b, .font-semibold, .font-bold { color: var(--st-ink); }
+small, .text-xs, .text-sm { line-height: 1.5; }
+
+/* Shared surfaces: subtle border, clean depth, consistent corner radius */
+.card, .stat-card, .metric-card, .panel, .content-card, .dashboard-card,
+.settings-card, .form-card, .table-card, .chart-card, .section-card,
+.widget, .modal, .dialog, .drawer, .dropdown-menu, .popover,
+.auth-card, .command-palette, .public-detail-card,
+[class*="StatCard"], [class*="statCard"] {
+  color: var(--st-ink);
+  border-color: var(--st-border);
+}
+.card, .stat-card, .metric-card, .panel, .content-card, .dashboard-card,
+.settings-card, .form-card, .table-card, .chart-card, .section-card,
+.widget, .auth-card, .public-detail-card {
+  box-shadow: var(--st-shadow-sm);
+}
+.card:hover, .panel:hover, .content-card:hover, .dashboard-card:hover,
+.stat-card:hover, .metric-card:hover {
+  border-color: var(--st-border-strong);
+  box-shadow: var(--st-shadow-md);
+}
+
+/* App chrome */
+.sidebar, .app-sidebar, aside[class*="sidebar"] {
+  color: var(--st-text);
+  background: var(--st-surface);
+  border-color: var(--st-border);
+}
+.topbar, .app-topbar, header[class*="topbar"] {
+  color: var(--st-text);
+  background: rgb(255 255 255 / 94%);
+  border-color: var(--st-border);
+}
+.sidebar a, .app-sidebar a, nav a {
+  color: var(--st-text);
+}
+.sidebar a:hover, .app-sidebar a:hover, nav a:hover {
+  color: var(--st-primary);
+}
+.sidebar a.active, .app-sidebar a.active, .nav-item.active,
+[aria-current="page"] {
+  color: var(--st-primary);
+}
+hr { border-color: var(--st-border); }
+
+/* Links remain clearly distinguishable */
+a:not(.btn):not(.button):not([class*="button"]) {
+  color: var(--st-primary);
+  text-underline-offset: 3px;
+}
+a:not(.btn):not(.button):not([class*="button"]):hover {
+  color: var(--st-primary-hover);
+}
+
+/* Form controls: readable entered text, label, placeholder, disabled state */
+label, .form-label, .input-label, fieldset legend {
+  color: var(--st-text);
+  font-weight: 600;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select, textarea, .form-control, .form-select {
+  color: var(--st-ink);
+  background: #fff;
+  border: 1px solid var(--st-border-strong);
+  caret-color: var(--st-ink);
+}
+input::placeholder, textarea::placeholder, .form-control::placeholder {
+  color: var(--st-placeholder);
+  opacity: 1;
+}
+select option {
+  color: var(--st-ink);
+  background: #fff;
+}
+input:disabled, select:disabled, textarea:disabled,
+.form-control:disabled, .form-select:disabled {
+  color: #526176;
+  background: #eef2f7;
+  opacity: 1;
+}
+input:focus, select:focus, textarea:focus,
+.form-control:focus, .form-select:focus {
+  border-color: var(--st-primary);
+  box-shadow: var(--st-focus-ring);
+  outline: none;
+}
+
+/* Buttons preserve intentional white text on primary/danger actions */
+button, .btn, .button, [role="button"], input[type="submit"] {
+  font: inherit;
+}
+.btn-primary, button.primary, .button-primary,
+[data-variant="primary"], input[type="submit"] {
+  color: #fff;
+}
+button:disabled, .btn:disabled, .button:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+/* Tables: contrast on both headers and body cells */
+table, .table, .data-table {
+  color: var(--st-text);
+}
+thead th, .table thead th, .data-table thead th {
+  color: #344054;
+  background: #f1f5fb;
+  border-color: var(--st-border);
+  font-weight: 750;
+}
+tbody td, .table tbody td, .data-table tbody td {
+  color: #27364b;
+  border-color: #e3e9f2;
+}
+tbody tr:hover td, .table tbody tr:hover td, .data-table tbody tr:hover td {
+  color: #17243a;
+  background: #f6f8fc;
+}
+.table-scroll, .table-responsive { max-width: 100%; }
+
+/* Badges and statuses: keep each label legible */
+.badge, .status-badge, .status-pill, .chip, .tag {
+  font-weight: 650;
+}
+.badge-success, .status-success, .status-pill.success {
+  color: #075e3b;
+  background: #dcfce7;
+}
+.badge-warning, .status-warning, .status-pill.warning {
+  color: #854d0e;
+  background: #fef3c7;
+}
+.badge-danger, .status-danger, .status-pill.danger {
+  color: #991b1b;
+  background: #fee2e2;
+}
+.badge-info, .status-info, .status-pill.info {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+/* Make inline SVG icons inherit a meaningful foreground unless explicitly colored */
+.icon, .icon svg, .icon-btn, .icon-button { color: inherit; }
+
+/* Dark mode only activates when the application explicitly sets data-theme="dark" */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --st-bg: #0b1120;
+  --st-bg-elevated: #101a2c;
+  --st-surface: #111c2f;
+  --st-surface-soft: #162238;
+  --st-surface-hover: #1b2a43;
+  --st-ink: #f3f6fc;
+  --st-ink-strong: #f8fafc;
+  --st-text: #e2e8f0;
+  --st-muted: #b4c0d2;
+  --st-placeholder: #a4b1c5;
+  --st-border: #2b3a52;
+  --st-border-strong: #435570;
+  --st-primary: #8db4ff;
+  --st-primary-hover: #b4ceff;
+  --st-primary-soft: #1b3156;
+  --st-success: #86efac;
+  --st-warning: #fcd34d;
+  --st-danger: #fca5a5;
+  --st-info: #93c5fd;
+  --st-shadow-sm: 0 1px 2px rgb(0 0 0 / 20%);
+  --st-shadow-md: 0 8px 24px rgb(0 0 0 / 22%);
+  --st-shadow-lg: 0 18px 48px rgb(0 0 0 / 28%);
+  --st-focus-ring: 0 0 0 4px rgb(141 180 255 / 22%);
+}
+html[data-theme="dark"], html[data-theme="dark"] body {
+  color: var(--st-ink);
+  background: var(--st-bg);
+}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .page-heading h1,
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .page-header h1,
+html[data-theme="dark"] .dashboard-title,
+html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .panel-heading,
+html[data-theme="dark"] .card-title,
+html[data-theme="dark"] .modal-title,
+html[data-theme="dark"] strong,
+html[data-theme="dark"] b {
+  color: var(--st-ink-strong);
+}
+html[data-theme="dark"] p,
+html[data-theme="dark"] li,
+html[data-theme="dark"] dd,
+html[data-theme="dark"] dt,
+html[data-theme="dark"] figcaption,
+html[data-theme="dark"] .page-description,
+html[data-theme="dark"] .description,
+html[data-theme="dark"] .subtitle,
+html[data-theme="dark"] .subheading,
+html[data-theme="dark"] .helper-text,
+html[data-theme="dark"] .help-text,
+html[data-theme="dark"] .form-text,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .text-secondary,
+html[data-theme="dark"] .metadata,
+html[data-theme="dark"] .meta {
+  color: var(--st-muted);
+}
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .metric-card,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .content-card,
+html[data-theme="dark"] .dashboard-card,
+html[data-theme="dark"] .settings-card,
+html[data-theme="dark"] .form-card,
+html[data-theme="dark"] .table-card,
+html[data-theme="dark"] .chart-card,
+html[data-theme="dark"] .section-card,
+html[data-theme="dark"] .widget,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .dialog,
+html[data-theme="dark"] .drawer,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .popover,
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .command-palette,
+html[data-theme="dark"] .public-detail-card {
+  color: var(--st-ink);
+  background-color: var(--st-surface);
+  border-color: var(--st-border);
+  box-shadow: var(--st-shadow-sm);
+}
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .app-sidebar,
+html[data-theme="dark"] aside[class*="sidebar"] {
+  color: var(--st-text);
+  background: var(--st-surface);
+  border-color: var(--st-border);
+}
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .app-topbar,
+html[data-theme="dark"] header[class*="topbar"] {
+  color: var(--st-text);
+  background: rgb(17 28 47 / 94%);
+  border-color: var(--st-border);
+}
+html[data-theme="dark"] .sidebar a,
+html[data-theme="dark"] .app-sidebar a,
+html[data-theme="dark"] nav a {
+  color: var(--st-text);
+}
+html[data-theme="dark"] a:not(.btn):not(.button):not([class*="button"]) {
+  color: var(--st-primary);
+}
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+  color: #f8fafc;
+  background: #0c1525;
+  border-color: var(--st-border-strong);
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder,
+html[data-theme="dark"] .form-control::placeholder {
+  color: #a4b1c5;
+  opacity: 1;
+}
+html[data-theme="dark"] select option {
+  color: #f8fafc;
+  background: #0c1525;
+}
+html[data-theme="dark"] input:disabled,
+html[data-theme="dark"] select:disabled,
+html[data-theme="dark"] textarea:disabled {
+  color: #b4c0d2;
+  background: #1a263a;
+}
+html[data-theme="dark"] thead th,
+html[data-theme="dark"] .table thead th,
+html[data-theme="dark"] .data-table thead th {
+  color: #dbeafe;
+  background: #17243a;
+  border-color: var(--st-border);
+}
+html[data-theme="dark"] tbody td,
+html[data-theme="dark"] .table tbody td,
+html[data-theme="dark"] .data-table tbody td {
+  color: #d7e0ee;
+  border-color: #26364e;
+}
+html[data-theme="dark"] tbody tr:hover td,
+html[data-theme="dark"] .table tbody tr:hover td,
+html[data-theme="dark"] .data-table tbody tr:hover td {
+  color: #f8fafc;
+  background: #192840;
+}
+html[data-theme="dark"] .badge-success,
+html[data-theme="dark"] .status-success,
+html[data-theme="dark"] .status-pill.success {
+  color: #bbf7d0;
+  background: #123b2a;
+}
+html[data-theme="dark"] .badge-warning,
+html[data-theme="dark"] .status-warning,
+html[data-theme="dark"] .status-pill.warning {
+  color: #fde68a;
+  background: #493514;
+}
+html[data-theme="dark"] .badge-danger,
+html[data-theme="dark"] .status-danger,
+html[data-theme="dark"] .status-pill.danger {
+  color: #fecaca;
+  background: #4a1d24;
+}
+html[data-theme="dark"] .badge-info,
+html[data-theme="dark"] .status-info,
+html[data-theme="dark"] .status-pill.info {
+  color: #bfdbfe;
+  background: #172f53;
+}
+
+/* Keep narrow screens usable without overriding page-specific layout logic */
+@media (max-width: 760px) {
+  .page-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .page-wrap { padding-inline: clamp(14px, 4vw, 24px); }
+  .table-scroll, .table-responsive { overflow-x: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+

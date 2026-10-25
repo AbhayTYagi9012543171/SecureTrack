@@ -1,0 +1,2 @@
+.notification-item { min-width: 0; overflow-wrap: anywhere; }
+.notification-item[aria-unread="true"] { border-color: color-mix(in srgb, var(--accent) 38%, var(--border)); }

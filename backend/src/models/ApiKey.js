@@ -1,0 +1,1 @@
+import mongoose from 'mongoose'; const s=new mongoose.Schema({owner:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,index:true},name:{type:String,required:true},prefix:String,secretHash:{type:String,required:true,select:false},lastUsedAt:Date,revokedAt:Date},{timestamps:true}); export default mongoose.model('ApiKey',s);

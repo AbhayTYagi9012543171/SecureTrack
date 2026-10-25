@@ -1,0 +1,1 @@
+import mongoose from 'mongoose'; const s=new mongoose.Schema({owner:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,index:true},title:{type:String,required:true},message:String,category:{type:String,enum:['scan','finding','system','account'],default:'system'},readAt:Date,link:String},{timestamps:true}); export default mongoose.model('Notification',s);

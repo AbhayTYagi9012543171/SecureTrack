@@ -1,0 +1,5 @@
+.table-scroll { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.table-scroll table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.table-scroll th { white-space: nowrap; }
+.table-scroll td { overflow-wrap: anywhere; }
+.table-scroll tr > :first-child { padding-inline-start: 18px; }

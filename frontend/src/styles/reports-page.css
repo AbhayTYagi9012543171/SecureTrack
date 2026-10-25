@@ -1,0 +1,2 @@
+/* Page style entry point: shared rules live in reports.css. Add page-only rules here. */
+@import './reports.css';

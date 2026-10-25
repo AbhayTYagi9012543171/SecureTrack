@@ -1,0 +1,2 @@
+.finding-card, .finding-row, .finding-detail { min-width: 0; }
+.severity-critical { color: var(--danger); }

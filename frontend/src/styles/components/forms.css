@@ -1,0 +1,5 @@
+.form-panel label, .form-section label { display: grid; gap: 7px; min-width: 0; }
+input, select, textarea { max-width: 100%; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent, #5b8cff); outline-offset: 1px; }
+textarea { resize: vertical; }
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: #e35d6a !important; }

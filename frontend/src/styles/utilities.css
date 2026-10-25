@@ -1,0 +1,8 @@
+.u-min-w-0 { min-width: 0 !important; }
+.u-flex { display: flex !important; }
+.u-flex-wrap { flex-wrap: wrap !important; }
+.u-items-center { align-items: center !important; }
+.u-justify-between { justify-content: space-between !important; }
+.u-text-muted { color: var(--muted) !important; }
+.u-break-word { overflow-wrap: anywhere !important; }
+.u-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }

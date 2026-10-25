@@ -1,0 +1,3 @@
+[role="status"], [role="alert"] { overflow-wrap: anywhere; }
+.empty-state, .error-state { max-width: 100%; }
+:where(.panel, .stat-card, .chart-card) { min-width: 0; }

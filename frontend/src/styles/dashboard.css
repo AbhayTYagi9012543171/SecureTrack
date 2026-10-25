@@ -1,0 +1,3 @@
+.dashboard-grid > *, .stat-grid > * { min-width: 0; }
+.chart-area > *, .chart-panel > * { min-width: 0; }
+.dashboard-grid .panel { overflow: hidden; }

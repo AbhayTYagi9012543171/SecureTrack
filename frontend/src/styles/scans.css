@@ -1,0 +1,2 @@
+.scan-card, .scan-row, .scan-detail { min-width: 0; }
+.scan-progress { overflow: hidden; border-radius: 999px; }
