@@ -1,4 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
 import { api } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -6,73 +15,225 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
+
+  const mounted = useRef(false);
   const refreshPromise = useRef(null);
-  const mounted = useRef(true);
 
-  const refresh = useCallback(async () => {
-    if (refreshPromise.current) return refreshPromise.current;
-    refreshPromise.current = api.get('/auth/me')
-      .then((response) => {
-        const currentUser = response.data?.data?.user ?? null;
-        if (mounted.current) setUser(currentUser);
-        return currentUser;
-      })
-      .catch((error) => {
-        if (mounted.current) setUser(null);
-        // The /auth/me endpoint is a public session probe. Network/server errors
-        // should not crash the app; the UI can still show the signed-out state.
-        if (!error.response) console.error('SecureTrack API is unreachable. Check the backend and VITE_API_URL.');
-        return null;
-      })
-      .finally(() => {
-        if (mounted.current) setLoading(false);
-        refreshPromise.current = null;
-      });
-    return refreshPromise.current;
-  }, []);
-
-  useEffect(() => {
-    mounted.current = true;
-    refresh();
-    const onUnauthorized = () => setUser(null);
-    window.addEventListener('securetrack:unauthorized', onUnauthorized);
-    return () => {
-      mounted.current = false;
-      window.removeEventListener('securetrack:unauthorized', onUnauthorized);
-    };
-  }, [refresh]);
-
-  const login = useCallback(async (values) => {
-    const response = await api.post('/auth/login', values);
-    const currentUser = response.data?.data?.user;
-    setUser(currentUser || null);
-    return response.data;
-  }, []);
-
-  const register = useCallback(async (values) => {
-    const response = await api.post('/auth/register', values);
-    const currentUser = response.data?.data?.user;
-    setUser(currentUser || null);
-    return response.data;
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      await api.post('/auth/logout');
-    } finally {
-      setUser(null);
+  /**
+   * Update user only when component is mounted.
+   */
+  const updateUser = useCallback((nextUser) => {
+    if (mounted.current) {
+      setUser(nextUser);
     }
   }, []);
 
+  /**
+   * Check existing authentication session.
+   */
+  const refresh = useCallback(async () => {
+    if (refreshPromise.current) {
+      return refreshPromise.current;
+    }
+
+    refreshPromise.current = api
+      .get('/auth/me')
+      .then((response) => {
+        const currentUser =
+          response.data?.data?.user ?? null;
+
+        updateUser(currentUser);
+        setAuthError(null);
+
+        return currentUser;
+      })
+      .catch((error) => {
+        updateUser(null);
+
+        const status = error.response?.status;
+
+        if (!error.response) {
+          setAuthError(
+            'Unable to connect to SecureTrack API.'
+          );
+
+          if (import.meta.env.DEV) {
+            console.error(
+              'SecureTrack session check failed:',
+              error.message
+            );
+          }
+        } else if (status >= 500) {
+          setAuthError(
+            'SecureTrack server is temporarily unavailable.'
+          );
+        } else {
+          setAuthError(null);
+        }
+
+        return null;
+      })
+      .finally(() => {
+        if (mounted.current) {
+          setLoading(false);
+        }
+
+        refreshPromise.current = null;
+      });
+
+    return refreshPromise.current;
+  }, [updateUser]);
+
+  /**
+   * Login
+   */
+  const login = useCallback(async (values) => {
+    setAuthError(null);
+
+    try {
+      const response = await api.post(
+        '/auth/login',
+        values
+      );
+
+      const currentUser =
+        response.data?.data?.user ?? null;
+
+      if (!currentUser) {
+        throw new Error(
+          'Login succeeded but user information was not returned.'
+        );
+      }
+
+      updateUser(currentUser);
+
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Login failed. Please try again.';
+
+      throw new Error(message);
+    }
+  }, [updateUser]);
+
+  /**
+   * Registration
+   */
+  const register = useCallback(async (values) => {
+    setAuthError(null);
+
+    try {
+      const response = await api.post(
+        '/auth/register',
+        values
+      );
+
+      const currentUser =
+        response.data?.data?.user ?? null;
+
+      if (!currentUser) {
+        throw new Error(
+          'Registration completed but user information was not returned.'
+        );
+      }
+
+      updateUser(currentUser);
+
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Registration failed. Please try again.';
+
+      throw new Error(message);
+    }
+  }, [updateUser]);
+
+  /**
+   * Logout
+   */
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error(
+          'SecureTrack logout request failed:',
+          error.message
+        );
+      }
+    } finally {
+      updateUser(null);
+      setAuthError(null);
+    }
+  }, [updateUser]);
+
+  /**
+   * Initialize authentication.
+   */
+  useEffect(() => {
+    mounted.current = true;
+
+    refresh();
+
+    const handleUnauthorized = () => {
+      updateUser(null);
+    };
+
+    window.addEventListener(
+      'securetrack:unauthorized',
+      handleUnauthorized
+    );
+
+    return () => {
+      mounted.current = false;
+
+      window.removeEventListener(
+        'securetrack:unauthorized',
+        handleUnauthorized
+      );
+    };
+  }, [refresh, updateUser]);
+
+  const value = {
+    user,
+    loading,
+    authError,
+
+    isAuthenticated: Boolean(user),
+
+    login,
+    register,
+    logout,
+    refresh,
+
+    setUser,
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh, setUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+/**
+ * Authentication hook.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+
+  if (!context) {
+    throw new Error(
+      'useAuth must be used within an AuthProvider.'
+    );
+  }
+
   return context;
 }
+
+export default AuthContext;
