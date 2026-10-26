@@ -2,19 +2,27 @@
 import axios from 'axios';
 
 const DEVELOPMENT_API_URL = 'http://localhost:5000/api/v1';
+const PRODUCTION_API_URL =
+  'https://securetrack-bbh6.onrender.com/api/v1';
+
+function normalizeUrl(url) {
+  return url.trim().replace(/\/+$/, '');
+}
 
 function getApiBaseUrl() {
-  // Local development uses the separately running backend.
-  if (import.meta.env.DEV) {
-    return (
-      import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '') ||
-      DEVELOPMENT_API_URL
-    );
+  const configuredUrl = import.meta.env.VITE_API_URL;
+
+  // Use the configured backend URL in both development and production.
+  if (configuredUrl?.trim()) {
+    return normalizeUrl(configuredUrl);
   }
 
-  // Production MUST use the same origin as the React application.
-  // Do not point this to a second Render subdomain.
-  return '/api/v1';
+  if (import.meta.env.DEV) {
+    return DEVELOPMENT_API_URL;
+  }
+
+  // Fallback for the current separate Render services.
+  return PRODUCTION_API_URL;
 }
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -47,29 +55,42 @@ api.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status;
-    const url = error.config?.url || '';
+    const requestUrl = error.config?.url || '';
 
-    const authPage =
-      /\/(login|register|forgot-password|reset-password)(\/|$)/i
-        .test(window.location.pathname);
+    const isAuthPage =
+      /\/(login|register|forgot-password|reset-password)(\/|$)/i.test(
+        window.location.pathname
+      );
 
-    const sessionCheck = /\/auth\/me(?:\?|$)/i.test(url);
+    const isSessionCheck =
+      /\/auth\/me(?:\?|$)/i.test(requestUrl);
 
     if (
       status === 401 &&
-      !authPage &&
-      !sessionCheck &&
+      !isAuthPage &&
+      !isSessionCheck &&
       !unauthorizedEventSent
     ) {
       unauthorizedEventSent = true;
-      window.dispatchEvent(new Event('securetrack:unauthorized'));
+
+      window.dispatchEvent(
+        new Event('securetrack:unauthorized')
+      );
     }
 
     if (!error.response) {
       error.message =
         error.code === 'ECONNABORTED'
           ? 'SecureTrack API request timed out.'
-          : 'Unable to connect to SecureTrack. Please check your connection.';
+          : 'Unable to connect to SecureTrack API. Check backend URL and CORS configuration.';
+
+      if (import.meta.env.DEV) {
+        console.error('[SecureTrack API Error]', {
+          baseURL: API_BASE_URL,
+          requestURL: requestUrl,
+          error: error.message,
+        });
+      }
     }
 
     return Promise.reject(error);
@@ -104,8 +125,11 @@ export async function send(method, url, data, config = {}) {
 
 export async function checkApiHealth() {
   try {
-    const response = await axios.get('/health', {
-      baseURL: window.location.origin,
+    const healthUrl = new URL(API_BASE_URL);
+    healthUrl.pathname = '/health';
+    healthUrl.search = '';
+
+    const response = await axios.get(healthUrl.toString(), {
       timeout: 10000,
     });
 
