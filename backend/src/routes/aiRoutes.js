@@ -19,6 +19,64 @@ function providerReady() {
   return Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
 }
 
+const RETRYABLE_AI_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function retryDelay(response, attempt) {
+  const retryAfter = response?.headers?.get('retry-after');
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (Number.isFinite(seconds) && seconds >= 0) {
+      return Math.min(seconds * 1000, 10000);
+    }
+    const dateDelay = Date.parse(retryAfter) - Date.now();
+    if (Number.isFinite(dateDelay) && dateDelay > 0) {
+      return Math.min(dateDelay, 10000);
+    }
+  }
+  return Math.min(1000 * (2 ** attempt), 4000);
+}
+
+async function fetchGeminiWithRetry(url, options) {
+  const timeoutMs = Math.min(45000, Number(process.env.AI_TIMEOUT_MS) || 30000);
+  const maxRetries = 2; // Three total attempts, with bounded delays.
+
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      if (!RETRYABLE_AI_STATUSES.has(response.status) || attempt === maxRetries) {
+        return response;
+      }
+      const delay = retryDelay(response, attempt);
+      // Release the unused response body before retrying.
+      if (typeof response.body?.cancel === 'function') {
+        await response.body.cancel().catch(() => {});
+      }
+      await wait(delay);
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        if (attempt === maxRetries) {
+          const timeout = new Error('The AI request timed out. Please try again.');
+          timeout.status = 504;
+          timeout.code = 'AI_TIMEOUT';
+          throw timeout;
+        }
+      } else if (attempt === maxRetries) {
+        throw error;
+      }
+      await wait(Math.min(1000 * (2 ** attempt), 4000));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  throw new Error('The AI provider could not complete this request.');
+}
+
 async function callModel({ system, messages, maxTokens = 900 }) {
   if (!providerReady()) {
     const error = new Error('AI is not configured. Add GEMINI_API_KEY to backend/.env, then restart the API.');
@@ -27,8 +85,6 @@ async function callModel({ system, messages, maxTokens = 900 }) {
     throw error;
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), Math.min(45000, Number(process.env.AI_TIMEOUT_MS) || 30000));
   try {
     const model = modelName();
     const contents = messages.map((message) => ({
@@ -36,11 +92,10 @@ async function callModel({ system, messages, maxTokens = 900 }) {
       parts: [{ text: String(message.content ?? '') }],
     }));
 
-    const response = await fetch(
+    const response = await fetchGeminiWithRetry(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
       {
         method: 'POST',
-        signal: controller.signal,
         headers: {
           'x-goog-api-key': process.env.GEMINI_API_KEY,
           'Content-Type': 'application/json',
@@ -104,15 +159,7 @@ async function callModel({ system, messages, maxTokens = 900 }) {
       completionTokens: Number(data.usageMetadata?.candidatesTokenCount) || 0,
     };
   } catch (error) {
-    if (error.name === 'AbortError') {
-      const timeout = new Error('The AI request timed out. Please try again.');
-      timeout.status = 504;
-      timeout.code = 'AI_TIMEOUT';
-      throw timeout;
-    }
     throw error;
-  } finally {
-    clearTimeout(timer);
   }
 }
 

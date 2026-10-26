@@ -75,7 +75,7 @@ export async function register(req, res) {
 
   createSession(res, user);
 
-  await audit({ ...req, user }, 'auth.register', 'user', user._id);
+  await audit(req, 'auth.register', 'user', user._id, {}, user);
 
   return res.status(201).json({
     success: true,
@@ -103,7 +103,7 @@ export async function login(req, res) {
 
   createSession(res, user);
 
-  await audit({ ...req, user }, 'auth.login', 'user', user._id);
+  await audit(req, 'auth.login', 'user', user._id, {}, user);
 
   return res.json({
     success: true,

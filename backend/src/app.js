@@ -27,14 +27,19 @@ app.disable('x-powered-by');
 
 /**
  * Reverse proxy configuration.
- *
- * For Render, set TRUST_PROXY=true.
- * For local development, leave it false.
+ * Render terminates TLS/proxies requests and supplies X-Forwarded-For.
+ * Trust one proxy hop in production by default. TRUST_PROXY can explicitly
+ * override this for deployments with a different topology.
  */
-app.set(
-  'trust proxy',
-  process.env.TRUST_PROXY === 'true' ? 1 : false
-);
+const trustProxySetting = process.env.TRUST_PROXY === 'true'
+  ? 1
+  : process.env.TRUST_PROXY === 'false'
+    ? false
+    : process.env.NODE_ENV === 'production'
+      ? 1
+      : false;
+
+app.set('trust proxy', trustProxySetting);
 
 /**
  * Normalize frontend origins.
