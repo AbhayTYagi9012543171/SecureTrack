@@ -1,0 +1,2 @@
+.activity-row, .audit-row { min-width: 0; }
+.activity-row time, .audit-row time { color: var(--muted); white-space: nowrap; }

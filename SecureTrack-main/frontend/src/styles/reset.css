@@ -1,0 +1,7 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 320px; scroll-behavior: smooth; text-size-adjust: 100%; }
+img, svg, video, canvas { max-width: 100%; }
+button, input, select, textarea { max-width: 100%; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }

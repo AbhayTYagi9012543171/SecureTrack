@@ -1,0 +1,2 @@
+/* Page style entry point: shared rules live in notifications.css. Add page-only rules here. */
+@import './notifications.css';

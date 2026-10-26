@@ -1,0 +1,2 @@
+.website-card, .website-row, .website-item { min-width: 0; }
+.website-url, .url-text { overflow-wrap: anywhere; }

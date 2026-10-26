@@ -1,0 +1,2 @@
+.task-card, .task-row { min-width: 0; }
+.task-description { overflow-wrap: anywhere; }

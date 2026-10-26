@@ -1,0 +1,2 @@
+/* Page style entry point: shared rules live in remediation.css. Add page-only rules here. */
+@import './remediation.css';

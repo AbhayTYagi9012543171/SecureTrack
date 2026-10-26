@@ -1,0 +1,23 @@
+// Import page components from a single, stable entry point.
+export { default as LandingPage } from './LandingPage.jsx';
+export { default as FeaturesPage } from './FeaturesPage.jsx';
+export { default as HowItWorksPage } from './HowItWorksPage.jsx';
+export { default as PricingPage } from './PricingPage.jsx';
+export { default as ContactPage } from './ContactPage.jsx';
+export { default as PrivacyPage } from './PrivacyPage.jsx';
+export { default as TermsPage } from './TermsPage.jsx';
+export { default as LoginPage } from './LoginPage.jsx';
+export { default as RegisterPage } from './RegisterPage.jsx';
+export { default as DashboardPage } from './DashboardPage.jsx';
+export { default as WebsitesPage } from './WebsitesPage.jsx';
+export { default as WebsiteCreatePage } from './WebsiteCreatePage.jsx';
+export { default as WebsiteEditPage } from './WebsiteEditPage.jsx';
+export { default as WebsiteDetailsPage } from './WebsiteDetailsPage.jsx';
+export { default as ScansPage } from './ScansPage.jsx';
+export { default as FindingsPage } from './FindingsPage.jsx';
+export { default as RemediationTasksPage } from './RemediationTasksPage.jsx';
+export { default as ReportsPage } from './ReportsPage.jsx';
+export { default as NotificationsPage } from './NotificationsPage.jsx';
+export { default as ActivityLogsPage } from './ActivityLogsPage.jsx';
+export { default as SettingsPage } from './SettingsPage.jsx';
+export { default as NotFoundPage } from './NotFoundPage.jsx';

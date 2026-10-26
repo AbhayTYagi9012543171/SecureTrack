@@ -1,0 +1,7 @@
+.sidebar { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.sidebar nav { padding-bottom: 10px; }
+.nav-item { min-height: 42px; border: 1px solid transparent; }
+.nav-item.active { border-color: color-mix(in srgb, var(--accent) 18%, transparent); }
+.nav-item:focus-visible { outline-offset: 1px; }
+.sidebar-bottom { margin-top: auto; }
+.secure-card { border-radius: var(--st-radius-md); }

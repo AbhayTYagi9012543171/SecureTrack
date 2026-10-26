@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Private keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+secrets/
+
+# Build output and coverage
+dist/
+build/
+.next/
+coverage/
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Database files and backups
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.bak
+
+# Cloud credentials
+.aws/
+.azure/
+.gcloud/
+.vercel/
+
+# IDE and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,2 @@
+/* Page style entry point: shared rules live in activity-logs.css. Add page-only rules here. */
+@import './activity-logs.css';

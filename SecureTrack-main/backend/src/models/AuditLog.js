@@ -1,0 +1,1 @@
+import mongoose from 'mongoose'; const s=new mongoose.Schema({user:{type:mongoose.Schema.Types.ObjectId,ref:'User'},action:{type:String,required:true},resource:String,resourceId:String,ip:String,userAgent:String,metadata:mongoose.Schema.Types.Mixed},{timestamps:true}); s.index({user:1,createdAt:-1}); export default mongoose.model('AuditLog',s);
