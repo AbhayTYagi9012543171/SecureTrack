@@ -1,42 +1,28 @@
 
 import axios from 'axios';
 
-/**
- * SecureTrack API Configuration
- *
- * Local development:
- *   http://localhost:5000/api/v1
- *
- * Production:
- *   https://your-backend.onrender.com/api/v1
- */
-
 const DEVELOPMENT_API_URL = 'http://localhost:5000/api/v1';
 
 function getApiBaseUrl() {
-  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
-
-  // Use an explicit environment URL when available.
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/+$/, '');
-  }
-
-  // Local fallback is only allowed during development.
+  // Local development uses the separately running backend.
   if (import.meta.env.DEV) {
-    return DEVELOPMENT_API_URL;
+    return (
+      import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '') ||
+      DEVELOPMENT_API_URL
+    );
   }
 
-  // Production fallback supports same-origin API hosting.
-  return `${window.location.origin}/api/v1`;
+  // Production MUST use the same origin as the React application.
+  // Do not point this to a second Render subdomain.
+  return '/api/v1';
 }
 
 export const API_BASE_URL = getApiBaseUrl();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 20000,
+  timeout: 30000,
   withCredentials: true,
-
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -44,25 +30,14 @@ export const api = axios.create({
   },
 });
 
-/**
- * Request interceptor
- */
 api.interceptors.request.use(
   (config) => {
-    if (import.meta.env.DEV) {
-      console.debug(
-        `[SecureTrack API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url || ''}`
-      );
-    }
-
+    config.withCredentials = true;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-/**
- * Response interceptor
- */
 let unauthorizedEventSent = false;
 
 api.interceptors.response.use(
@@ -70,80 +45,47 @@ api.interceptors.response.use(
     unauthorizedEventSent = false;
     return response;
   },
-
   (error) => {
     const status = error.response?.status;
-    const requestUrl = error.config?.url || '';
-    const currentPath = window.location.pathname;
+    const url = error.config?.url || '';
 
-    const isAuthPage =
-      /\/(login|register|forgot-password|reset-password)(\/|$)/i.test(
-        currentPath
-      );
+    const authPage =
+      /\/(login|register|forgot-password|reset-password)(\/|$)/i
+        .test(window.location.pathname);
 
-    const isSessionCheck =
-      /\/auth\/me(?:\?|$)/i.test(requestUrl);
+    const sessionCheck = /\/auth\/me(?:\?|$)/i.test(url);
 
     if (
       status === 401 &&
-      !isAuthPage &&
-      !isSessionCheck &&
+      !authPage &&
+      !sessionCheck &&
       !unauthorizedEventSent
     ) {
       unauthorizedEventSent = true;
-
-      window.dispatchEvent(
-        new Event('securetrack:unauthorized')
-      );
+      window.dispatchEvent(new Event('securetrack:unauthorized'));
     }
 
     if (!error.response) {
-      const message =
+      error.message =
         error.code === 'ECONNABORTED'
           ? 'SecureTrack API request timed out.'
-          : 'Unable to connect to SecureTrack API. Check backend URL, server status and CORS configuration.';
-
-      error.message = message;
-
-      if (import.meta.env.DEV) {
-        console.error('[SecureTrack Network Error]', {
-          apiBaseURL: API_BASE_URL,
-          requestURL: requestUrl,
-          error: error.message,
-        });
-      }
+          : 'Unable to connect to SecureTrack. Please check your connection.';
     }
 
     return Promise.reject(error);
   }
 );
 
-/**
- * GET helper
- */
 export async function getData(url, params = {}) {
   const response = await api.get(url, { params });
-
   return response.data?.data;
 }
 
-/**
- * POST / PUT / PATCH / DELETE helper
- */
 export async function send(method, url, data, config = {}) {
   const normalizedMethod = String(method).toLowerCase();
 
-  const allowedMethods = [
-    'post',
-    'put',
-    'patch',
-    'delete',
-  ];
-
-  if (!allowedMethods.includes(normalizedMethod)) {
-    throw new Error(
-      `Unsupported HTTP method: ${method}`
-    );
+  if (!['post', 'put', 'patch', 'delete'].includes(normalizedMethod)) {
+    throw new Error(`Unsupported HTTP method: ${method}`);
   }
 
   let response;
@@ -154,31 +96,18 @@ export async function send(method, url, data, config = {}) {
       ...(data === undefined ? {} : { data }),
     });
   } else {
-    response = await api[normalizedMethod](
-      url,
-      data,
-      config
-    );
+    response = await api[normalizedMethod](url, data, config);
   }
 
   return response.data;
 }
 
-/**
- * API health check
- */
 export async function checkApiHealth() {
   try {
-    const healthUrl = new URL(API_BASE_URL);
-
-    // Remove the API prefix to access the backend health endpoint.
-    healthUrl.pathname = '/health';
-    healthUrl.search = '';
-
-    const response = await axios.get(
-      healthUrl.toString(),
-      { timeout: 10000 }
-    );
+    const response = await axios.get('/health', {
+      baseURL: window.location.origin,
+      timeout: 10000,
+    });
 
     return {
       online: response.status === 200,

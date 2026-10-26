@@ -1,39 +1,50 @@
+
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-function clearSession(res) {
-  res.clearCookie('securetrack_session', {
+const COOKIE_NAME = 'securetrack_session';
+
+function sessionCookieOptions() {
+  const production = process.env.NODE_ENV === 'production';
+
+  return {
     httpOnly: true,
-    secure:
-      process.env.COOKIE_SECURE === 'true' ||
-      (process.env.NODE_ENV === 'production' &&
-        process.env.COOKIE_SECURE !== 'false'),
-    sameSite:
-      process.env.COOKIE_SAME_SITE ||
-      (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+    secure: production,
+    sameSite: production ? 'lax' : 'lax',
     path: '/',
-  });
+  };
+}
+
+export function clearSession(res) {
+  res.clearCookie(COOKIE_NAME, sessionCookieOptions());
 }
 
 async function resolveUser(req) {
-  const token = req.cookies?.securetrack_session;
+  const token = req.cookies?.[COOKIE_NAME];
 
   if (!token) return null;
 
-  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-    throw new Error('Authentication is not configured');
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_SECRET is not configured correctly');
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+  const decoded = jwt.verify(token, secret, {
     issuer: 'securetrack',
+    audience: 'securetrack-web',
+    algorithms: ['HS256'],
   });
+
+  if (!decoded.sub) return null;
 
   const user = await User.findById(decoded.sub).select('-password');
 
-  return user?.isActive ? user : null;
+  if (!user || !user.isActive) return null;
+
+  return user;
 }
 
-// For endpoints that require a session. Never expose token or verification details.
 export async function protect(req, res, next) {
   try {
     const user = await resolveUser(req);
@@ -43,34 +54,46 @@ export async function protect(req, res, next) {
 
       return res.status(401).json({
         success: false,
-        message: 'Please sign in to continue',
+        code: 'AUTH_REQUIRED',
+        message: 'Please sign in to continue.',
       });
     }
 
     req.user = user;
     return next();
-  } catch {
+  } catch (error) {
+    console.error('[AUTH VERIFICATION FAILED]', {
+      requestId: req.requestId,
+      method: req.method,
+      path: req.path,
+      reason: error.name || 'AuthenticationError',
+    });
+
     clearSession(res);
 
     return res.status(401).json({
       success: false,
-      message: 'Your session is invalid or has expired',
+      code: 'INVALID_SESSION',
+      message: 'Your session is invalid or has expired.',
     });
   }
 }
 
-// Session introspection is intentionally optional: a signed-out visitor receives
-// { user: null } instead of a noisy 401 during the initial app boot.
 export async function optionalAuth(req, res, next) {
   try {
     req.user = await resolveUser(req);
 
-    if (req.cookies?.securetrack_session && !req.user) {
+    if (req.cookies?.[COOKIE_NAME] && !req.user) {
       clearSession(res);
     }
 
     return next();
-  } catch {
+  } catch (error) {
+    console.warn('[OPTIONAL AUTH FAILED]', {
+      requestId: req.requestId,
+      reason: error.name || 'AuthenticationError',
+    });
+
     clearSession(res);
     req.user = null;
 
@@ -85,6 +108,6 @@ export function requireAdmin(req, res, next) {
 
   return res.status(403).json({
     success: false,
-    message: 'Administrator access required',
+    message: 'Administrator access required.',
   });
 }
